@@ -1,0 +1,13 @@
+langchain 
+langchain-core 
+langchain-community  
+langchain-openai 
+langchain_experimental 
+langchainhub 
+langgraph
+chromadb
+beautifulsoup4
+langchain_huggingface
+nest_asyncio
+langchain-groq
+tavily-python
