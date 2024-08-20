@@ -1,10 +1,7 @@
 import os
 
 import groq
-
-
 from groq import Groq
-
 
 
 def load_groq_client():
@@ -28,9 +25,24 @@ def load_groq():
     return llm
 
 
+def load_openai():
+    import os
+    from langchain_openai import AzureChatOpenAI
+
+    llm = AzureChatOpenAI(
+        azure_deployment=os.environ["azure_deployment"],
+        api_version=os.environ["api_version"],
+        temperature=0,
+        max_tokens=None,
+        timeout=None,
+        max_retries=2,
+    )
+
+    return llm
+
 
 groq_llm = load_groq()
-openai_llm = groq_llm
+openai_llm = load_openai()
 llm = groq_llm
 
 groq_client = load_groq_client()
