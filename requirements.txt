@@ -16,3 +16,4 @@ langgraph-checkpoint-sqlite
 audio-recorder-streamlit
 newspaper3k
 lxml_html_clean
+duckduckgo-search
