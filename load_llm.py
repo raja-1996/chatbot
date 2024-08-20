@@ -38,6 +38,7 @@ def load_groq():
 
 
 groq_llm = load_groq()
+openai_llm = llm
 llm = groq_llm
 
 groq_client = load_groq_client()
