@@ -1,6 +1,2 @@
 [theme]
 base="dark"
-
-[server]
-sslCertFile = "/home/rajareddy/chatbot/ssl_files/cert.pem"
-sslKeyFile = "/home/rajareddy/chatbot/ssl_files/key.pem"
