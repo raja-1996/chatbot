@@ -11,3 +11,5 @@ langchain_huggingface
 nest_asyncio
 langchain-groq
 tavily-python
+groq
+langgraph-checkpoint-sqlite
