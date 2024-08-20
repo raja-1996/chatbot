@@ -13,3 +13,4 @@ langchain-groq
 tavily-python
 groq
 langgraph-checkpoint-sqlite
+audio-recorder-streamlit
