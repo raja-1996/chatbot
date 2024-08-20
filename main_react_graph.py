@@ -40,7 +40,7 @@ st.markdown(
 <style>
 p, li, a {
     font-size:19px !important;
-    color: #CCCCCC;
+    
             
 }
 </style>
@@ -48,6 +48,8 @@ p, li, a {
     unsafe_allow_html=True,
 )
 
+# color: #CCCCCC;
+# neutral_color="#CCCCCC",
 
 graph = get_graph()
 
@@ -58,7 +60,7 @@ with st.sidebar:
     # audio input
 
     audio_bytes = audio_recorder(
-        text="", neutral_color="#CCCCCC", recording_color="red", icon_size="2x", pause_threshold=2.0, key="record_audio"
+        text="", recording_color="red", icon_size="2x", pause_threshold=2.0, key="record_audio"
     )
     audio_bytes = check_for_processed_audio(audio_bytes)
 
@@ -80,8 +82,7 @@ with st.sidebar:
             f"""
         <a href="/?id={chat_id}" target="_self" style="
         text-decoration: none;
-        color: #ffffff;
-        ">{prefix} </a>
+        ">{'`' + prefix + '`'}</a>
         """,
             unsafe_allow_html=True,
         )
@@ -121,15 +122,23 @@ if prompt:
 
         # st_callback = StreamlitCallbackHandler(st.container())
         # config["callbacks"] = [st_callback]
+        retries = 2
+        while retries:
+            try:
+                response = graph.invoke({"messages": [("user", prompt)]}, config)
+                retries = 0
 
-        response = graph.invoke({"messages": [("user", prompt)]}, config)
+                state = graph.get_state(config)
+                actions = [action for action in state.values["actions"]]
 
-        state = graph.get_state(config)
-        actions = [action for action in state.values["actions"]]
+                if len(actions):
+                    metadata = "\n\n".join(actions)
+                    with st.expander(label="Actions"):
+                        st.write(metadata)
 
-        if len(actions):
-            metadata = "\n\n".join(actions)
-            with st.expander(label="Actions"):
-                st.write(metadata)
+                response = st.write(parse_output(response["messages"][-1].content))
+                break
 
-        response = st.write(parse_output(response["messages"][-1].content))
+            except Exception as e:
+                print("Retrying", e)
+                retries -= 1

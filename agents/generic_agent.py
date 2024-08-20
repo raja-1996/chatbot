@@ -77,10 +77,11 @@ prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            "You are a helpful assistant. Dont call tools if not required, be careful",
+            """You are a helpful assistant. Dont call tools if not required, be careful
+            avoid calling same tool, max is 2
+            """,
         ),
         ("placeholder", "{chat_history}"),
-        ("placeholder", "{agent_scratchpad}"),
         (
             "human",
             """
@@ -90,6 +91,7 @@ Use below plan to answer above query:
 
          """,
         ),
+        ("placeholder", "{agent_scratchpad}"),
     ]
 )
 

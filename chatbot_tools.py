@@ -64,14 +64,16 @@ def get_results_from_tavily(search_queries):
 
 @tool
 def search_web(search_queries: str, explanation: str) -> str:
-    """The search_web tool allows to augment knowledge and retrieve the latest information on a topic by searching the web using provided comma-separated search queries max queries 2. This tool returns a summary of the key points from all retrieved web pages, enabling me to provide more accurate and up-to-date information.
+    """Tool that queries the Search API and returns content.
+
+    Use the web search tool only if the information requested is related to current events, real-time data, recent trends, or requires up-to-date information that may not be available in your training data. For all other queries, provide answers based on your existing knowledge without resorting to the web search.
 
     Args:
         search_queries (str): comma seperated search queries without quotes, related to the topic, max queries 3
-        explanation (str): give a reason for choosing this tool
+        explanation (str): Explain why should you this tool?
 
     Returns:
-        str: summary of all web pages retrieved for a search query
+        str: content of all web pages retrieved for a search query
     """
 
     search_queries = search_queries.split(",")

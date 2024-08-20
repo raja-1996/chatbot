@@ -20,7 +20,7 @@ prompt = ChatPromptTemplate.from_messages(
         (
             "system",
             """
-As a planner, list all the steps required to answer the query
+As a planner, list all the steps required to answer the query. Remeber dont answer answer, Your role is to list the steps
             Previous conversation history:
 
             {chat_history}
@@ -42,7 +42,8 @@ def planner(state):
 
     response = structured_llm.invoke({"query": chat_history[-1].content, "chat_history": history})
     steps = response.steps
+    plan_str = "\n\n".join(f"{i+1}. {step}" for i, step in enumerate(steps))
 
-    actions = [f"Planner: {'\n\n'.join(steps)}"]
+    actions = [f"Planner:\n\n{plan_str}"]
 
     return {"steps": steps, "actions": actions}
