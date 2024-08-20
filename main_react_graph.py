@@ -30,7 +30,7 @@ def get_graph():
 import streamlit as st
 
 st.set_page_config(
-    page_title="Meesho Chatbot",
+    page_title="Chatbot",
     page_icon="src_utils/logo.png",
     layout="wide",  # Optional: 'centered' or 'wide'
 )
