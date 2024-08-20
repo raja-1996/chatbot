@@ -14,12 +14,13 @@ from agents.stock_trader import stock_trader
 graph_builder = StateGraph(State)
 
 # add nodes
-graph_builder.add_node("planner", planner)
+# graph_builder.add_node("planner", planner)
 graph_builder.add_node("generic", chatbot)
 
 # add edges
-graph_builder.add_edge(START, "planner")
-graph_builder.add_edge("planner", "generic")
+graph_builder.add_edge(START, "generic")
+# graph_builder.add_edge("planner", "generic")
+
 
 def next_agent(state):
     return state["agent"]

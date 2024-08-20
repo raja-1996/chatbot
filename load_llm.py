@@ -13,9 +13,9 @@ def load_groq():
     from langchain_groq import ChatGroq
 
     llm = ChatGroq(
-        # model="llama-3.1-70b-versatile",
+        model="llama-3.1-70b-versatile",
         # model="llama-3.1-8b-instant",
-        model="llama3-groq-70b-8192-tool-use-preview",
+        # model="llama3-groq-70b-8192-tool-use-preview",
         temperature=0,
         max_tokens=None,
         timeout=None,
