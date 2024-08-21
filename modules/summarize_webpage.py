@@ -5,11 +5,9 @@ summarize_webpage_prompt = ChatPromptTemplate.from_messages(
         (
             "system",
             """
-        Summarize the following content
+        Summarize the content which is related to mentioned queries
         """,
         ),
         MessagesPlaceholder("messages"),
     ]
 )
-
-

@@ -29,6 +29,8 @@ def clean_text(text):
     # Convert to lowercase
     text = text.lower()
 
+    text = text.strip()
+
     # Remove extra whitespace
     text = re.sub(r"\s+", " ", text)
 
@@ -40,20 +42,26 @@ def remove_white_spaces(text):
     return text
 
 
-def summarize_urls(docs):
+def summarize_urls(docs, search_queries):
 
     if isinstance(docs, str):
         docs = [docs]
 
     llm_chain = summarize_webpage_prompt | llm
 
-    batch_input = [{"messages": [("human", f"{doc.page_content}")]} for doc in docs]
+    batch_input = [
+        {
+            "messages": [("human", f"Queries:\n\n {', '.join(search_queries)} \n\n Content: \n\n{doc.page_content}")],
+            "search_queries": search_queries,
+        }
+        for doc in docs
+    ]
     webpage_summaries = llm_chain.batch(batch_input, config={"max_concurrency": 10})
     return webpage_summaries
 
 
 def get_results_from_duckduckgo(search_query):
-    return search_engine._ddgs_text(search_query, max_results=2)
+    return search_engine._ddgs_text(search_query, max_results=5)
 
 
 def get_results_from_tavily(search_queries):
@@ -62,43 +70,84 @@ def get_results_from_tavily(search_queries):
     return docs
 
 
+# @tool
+# def search_web(search_queries: str, explanation: str) -> str:
+#     """Tool that queries the Search API and returns content.
+
+#     Use the web search tool only if the information requested is related to current events, real-time data, recent trends, or requires up-to-date information that may not be available in your training data. For all other queries, provide answers based on your existing knowledge without resorting to the web search.
+
+#     Args:
+#         search_queries (str): comma seperated search queries without quotes, related to the topic, max queries 3
+#         explanation (str): Explain why should you this tool?
+
+#     Returns:
+#         str: content of all web pages retrieved for a search query
+#     """
+
+#     search_queries = search_queries.split(",")
+#     search_queries = [clean_text(query) for query in search_queries]
+#     search_queries = [", ".join(search_queries)]
+
+#     # urls = []
+#     # results = get_results_from_tavily(search_queries)
+#     # urls += [item["href"] for item in results]
+
+#     # print("****   WEB SEARCH  *****")
+#     # print(search_queries)
+#     # for url in urls:
+#     #     print(url)
+
+#     # summaries = "\n\n".join([f"\n\nContent: {remove_white_spaces(doc['content'])}" for idx, doc in enumerate(results)])
+#     # return summaries
+
+#     urls = []
+#     for search_query in search_queries:
+#         results = get_results_from_duckduckgo(search_query)
+#         urls += [item["href"] for item in results]
+
+#     # urls = []
+#     # results = get_results_from_tavily(search_queries)
+#     # urls += [item["href"] for item in results]
+
+#     print("****   WEB SEARCH  *****")
+#     print(search_queries)
+#     for url in urls:
+#         print(url)
+
+#     loader = NewsLoader(urls, requests_per_second=10)
+#     loader.requests_kwargs = {"verify": False}
+
+#     docs = loader.aload()
+
+#     summaries = summarize_urls(docs, search_queries)
+#     summaries = "\n\n".join([f"\nSource: {urls[idx]} \n\nContent: {doc.content}" for idx, doc in enumerate(summaries)])
+
+#     # summaries = "\n\n".join([f"\n\nContent: {remove_white_spaces(doc.page_content)}" for idx, doc in enumerate(docs)])
+
+#     return summaries
+
+
 @tool
-def search_web(search_queries: str, explanation: str) -> str:
+def search_web(search_query: str, explanation: str) -> str:
     """Tool that queries the Search API and returns content.
 
     Use the web search tool only if the information requested is related to current events, real-time data, recent trends, or requires up-to-date information that may not be available in your training data. For all other queries, provide answers based on your existing knowledge without resorting to the web search.
 
     Args:
-        search_queries (str): comma seperated search queries without quotes, related to the topic, max queries 3
+        search_query (str): search query
         explanation (str): Explain why should you this tool?
 
     Returns:
         str: content of all web pages retrieved for a search query
     """
 
-    search_queries = search_queries.split(",")
+    search_queries = [search_query]
     search_queries = [clean_text(query) for query in search_queries]
 
     urls = []
-    results = get_results_from_tavily(search_queries)
-    urls += [item["href"] for item in results]
-
-    print("****   WEB SEARCH  *****")
-    print(search_queries)
-    for url in urls:
-        print(url)
-
-    summaries = "\n\n".join([f"\n\nContent: {remove_white_spaces(doc['content'])}" for idx, doc in enumerate(results)])
-    return summaries
-
-    # urls = []
-    # for search_query in search_queries:
-    #     results = get_results_from_duckduckgo(search_query)
-    #     urls += [item["href"] for item in results]
-
-    urls = []
-    results = get_results_from_tavily(search_queries)
-    urls += [item["href"] for item in results]
+    for search_query in search_queries:
+        results = get_results_from_duckduckgo(search_query)
+        urls += [item["href"] for item in results]
 
     print("****   WEB SEARCH  *****")
     print(search_queries)
@@ -110,10 +159,10 @@ def search_web(search_queries: str, explanation: str) -> str:
 
     docs = loader.aload()
 
-    # summaries = summarize_urls(docs)
-    # summaries = "\n\n".join([f"\nSource: {urls[idx]} \n\nContent: {doc.content}" for idx, doc in enumerate(summaries)])
+    summaries = summarize_urls(docs, search_queries)
+    summaries = "\n\n".join([f"\nSource: {urls[idx]} \n\nContent: {doc.content}" for idx, doc in enumerate(summaries)])
 
-    summaries = "\n\n".join([f"\n\nContent: {remove_white_spaces(doc.page_content)}" for idx, doc in enumerate(docs)])
+    # summaries = "\n\n".join([f"\n\nContent: {remove_white_spaces(doc.page_content)}" for idx, doc in enumerate(docs)])
 
     return summaries
 

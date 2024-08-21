@@ -77,12 +77,22 @@ prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            """You are a helpful assistant.""",
+            """
+You are an expert in answering queries. You will receive a step-by-step approach from an expert agent, which outlines the method to answer the user's question. Follow these steps directly and provide a detailed, thorough, and complete response. Ensure that your answer is not just concise but also elaborates on each step, providing all necessary details, explanations, and examples to fully address the user's query. Begin your answer immediately with the relevant information, without any introductory statements about the process or the steps you are following.
+
+You are a highly intelligent AI model capable of solving a wide range of tasks using your internal knowledge and reasoning abilities. While you have access to external tools that can assist in specific scenarios, your primary goal is to provide solutions using your inbuilt knowledge and capabilities. Only resort to tools when absolutely necessary and explain your reasoning before doing so. Do not over-rely on external tools; prioritize efficient and self-sufficient problem-solving first.
+
+please provide web references in the response
+            """,
         ),
         ("placeholder", "{chat_history}"),
         (
             "human",
-            """{input}""",
+            """{input}
+I have included a list of steps that can be helpful in answering the query. Please use these steps to guide your response.
+
+Steps:
+{plan_str}""",
         ),
         ("placeholder", "{agent_scratchpad}"),
     ]
@@ -92,5 +102,5 @@ prompt = ChatPromptTemplate.from_messages(
 from agents.tool_agent import get_tool_agent
 from chatbot_tools import search_web, scrape_content_from_webpage
 
-tools = [search_web, scrape_content_from_webpage]
+tools = []
 chatbot = get_tool_agent(prompt, tools, llm)

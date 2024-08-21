@@ -13,15 +13,29 @@ def load_groq():
     from langchain_groq import ChatGroq
 
     llm = ChatGroq(
-        model="llama-3.1-70b-versatile",
-        # model="llama-3.1-8b-instant",
-        # model="llama3-groq-70b-8192-tool-use-preview",
+        # model="llama-3.1-70b-versatile",
+        model="llama-3.1-8b-instant",
+        # model="gemma2-9b-it",
         temperature=0,
         max_tokens=None,
         timeout=None,
         max_retries=2,
     )
 
+    return llm
+
+
+def load_gemini():
+    from langchain_google_genai import ChatGoogleGenerativeAI
+
+    llm = ChatGoogleGenerativeAI(
+        model="gemini-1.5-flash",
+        temperature=0,
+        max_tokens=None,
+        timeout=None,
+        max_retries=2,
+        # other params...
+    )
     return llm
 
 
@@ -43,7 +57,9 @@ def load_openai():
 
 groq_llm = load_groq()
 # openai_llm = load_openai()
+
+gemini_llm = load_gemini()
 openai_llm = groq_llm
-llm = groq_llm
+llm = openai_llm
 
 groq_client = load_groq_client()

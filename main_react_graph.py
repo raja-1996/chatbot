@@ -73,6 +73,10 @@ with st.sidebar:
     st.markdown("## Meesho ChatBot")
     st.write("")
     new_chat = st.button("New chat")
+    if new_chat:
+        del st.query_params["id"]
+        chat_ids = get_chats()
+        st.session_state["chats"] = chat_ids
 
     for chat_id, message in chat_ids:
 
@@ -87,9 +91,6 @@ with st.sidebar:
             unsafe_allow_html=True,
         )
 
-
-if new_chat:
-    del st.query_params["id"]
 
 if "id" not in st.query_params:
     st.query_params["id"] = int(time.time())
@@ -120,25 +121,28 @@ if prompt:
 if prompt:
     with st.chat_message("assistant"):
 
-        # st_callback = StreamlitCallbackHandler(st.container())
-        # config["callbacks"] = [st_callback]
-        retries = 2
-        while retries:
-            try:
-                response = graph.invoke({"messages": [("user", prompt)]}, config)
-                retries = 0
+        with st.spinner('Processing...'):
 
-                state = graph.get_state(config)
-                actions = [action for action in state.values["actions"]]
 
-                if len(actions):
-                    metadata = "\n\n".join(actions)
-                    with st.expander(label="Actions"):
-                        st.write(metadata)
+            # st_callback = StreamlitCallbackHandler(st.container())
+            # config["callbacks"] = [st_callback]
+            retries = 2
+            while retries:
+                try:
+                    response = graph.invoke({"messages": [("user", prompt)]}, config)
+                    retries = 0
 
-                response = st.write(parse_output(response["messages"][-1].content))
-                break
+                    state = graph.get_state(config)
+                    actions = [action for action in state.values["actions"]]
 
-            except Exception as e:
-                print("Retrying", e)
-                retries -= 1
+                    if len(actions):
+                        metadata = "\n\n".join(actions)
+                        with st.expander(label="Actions"):
+                            st.write(metadata)
+
+                    response = st.write(parse_output(response["messages"][-1].content))
+                    break
+
+                except Exception as e:
+                    print("Retrying", e)
+                    retries -= 1

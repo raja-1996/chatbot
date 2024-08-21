@@ -27,7 +27,12 @@ def get_tool_agent(prompt, tools, llm):
 
         chat_history = state["messages"]
 
-        response = agent_executor.invoke({"input": chat_history[-1].content, "chat_history": chat_history[:-1]})
+        steps = state["steps"]
+        plan_str = "\n".join([f"{idx}. {step}" for idx, step in enumerate(steps)])
+
+        response = agent_executor.invoke(
+            {"input": chat_history[-1].content, "chat_history": chat_history[:-1], "plan_str": plan_str}
+        )
 
         actions = [
             f"Tool: {action[0].tool} \n\n Input: {action[0].tool_input}" for action in response["intermediate_steps"]

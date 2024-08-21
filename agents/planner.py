@@ -6,43 +6,46 @@ from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.messages import *
 
 
-class Planner(BaseModel):
-    """list of steps to answer the query"""
+class SystemPrompt(BaseModel):
+    """generate prompt for better answer the query"""
 
-    steps: List[str] = Field(
-        ...,
-        description="""list of steps to answer the query""",
-    )
+    prompt: str = Field(..., description="""prompt""")
 
 
 prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            """
-As a planner, list all the steps required to answer the query. Remeber dont answer answer, Your role is to list the steps
-            Previous conversation history:
+            """You are an expert in answering queries and breaking down complex tasks. Your role is to outline a clear and step-by-step approach to answer the user's question. However, do not execute the steps yourself. Another agent LLM will handle the execution based on your guidance. Your task is to ensure that your steps are detailed, logical, and easy to follow, providing the necessary framework for the other agent to generate the final response. Begin by analyzing the query and then list the steps required to address it comprehensively.
 
-            {chat_history}
+Previous conversation history:
+{chat_history}
             """,
         ),
         ("human", "{query}"),
     ]
 )
 
-structured_llm = groq_llm.with_structured_output(Planner)
+# structured_llm = groq_llm.with_structured_output(SystemPrompt)
 
-structured_llm = prompt | structured_llm
+structured_llm = prompt | groq_llm
 
 
 def planner(state):
 
     chat_history = state["messages"]
-    history = chat_history[:-1]
+    history = [
+        message for message in chat_history[:-1] if isinstance(message, HumanMessage) or isinstance(message, AIMessage)
+    ]
 
     response = structured_llm.invoke({"query": chat_history[-1].content, "chat_history": history})
-    steps = response.steps
+    # steps = [response.prompt]
+
+    steps = [response.content]
     plan_str = "\n\n".join(f"{i+1}. {step}" for i, step in enumerate(steps))
+
+    print("***** Planner *****")
+    print(plan_str)
 
     actions = [f"Planner:\n\n{plan_str}"]
 
